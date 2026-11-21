@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+challenge/viewer_out/
+challenge/naviz_out/

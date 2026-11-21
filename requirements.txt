@@ -5,3 +5,4 @@ aqora==0.39.0
 marimo==0.25.2
 polars==2.1.0
 qiskit==2.6.2
+mqt.qcec==3.12.0
