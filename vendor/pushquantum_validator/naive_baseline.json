@@ -1,0 +1,590 @@
+{
+  "sample_circuit_01": {
+    "metrics": {
+      "num_moves": 2,
+      "move_steps": 2,
+      "move_distance": 20.04894,
+      "move_time": 20.04894,
+      "depth": 8,
+      "num_operations": 12
+    },
+    "spacing_warnings": 0,
+    "equivalence": "EquivalenceCriterion.equivalent_up_to_global_phase"
+  },
+  "sample_circuit_02": {
+    "metrics": {
+      "num_moves": 4,
+      "move_steps": 4,
+      "move_distance": 40.335882,
+      "move_time": 40.335882,
+      "depth": 12,
+      "num_operations": 20
+    },
+    "spacing_warnings": 0,
+    "equivalence": "EquivalenceCriterion.equivalent_up_to_global_phase"
+  },
+  "sample_circuit_03": {
+    "metrics": {
+      "num_moves": 32,
+      "move_steps": 32,
+      "move_distance": 322.491293,
+      "move_time": 322.491293,
+      "depth": 81,
+      "num_operations": 108
+    },
+    "spacing_warnings": 0,
+    "equivalence": "EquivalenceCriterion.equivalent_up_to_global_phase"
+  },
+  "sample_circuit_04": {
+    "metrics": {
+      "num_moves": 6,
+      "move_steps": 6,
+      "move_distance": 60.384822,
+      "move_time": 60.384822,
+      "depth": 16,
+      "num_operations": 28
+    },
+    "spacing_warnings": 0,
+    "equivalence": "EquivalenceCriterion.equivalent_up_to_global_phase"
+  },
+  "sample_circuit_05": {
+    "metrics": {
+      "num_moves": 48,
+      "move_steps": 48,
+      "move_distance": 484.803001,
+      "move_time": 484.803001,
+      "depth": 78,
+      "num_operations": 144
+    },
+    "spacing_warnings": 0,
+    "equivalence": "EquivalenceCriterion.equivalent_up_to_global_phase"
+  },
+  "sample_circuit_06": {
+    "metrics": {
+      "num_moves": 64,
+      "move_steps": 64,
+      "move_distance": 646.902774,
+      "move_time": 646.902774,
+      "depth": 87,
+      "num_operations": 180
+    },
+    "spacing_warnings": 0,
+    "equivalence": "EquivalenceCriterion.equivalent_up_to_global_phase"
+  },
+  "sample_circuit_07": {
+    "metrics": {
+      "num_moves": 972,
+      "move_steps": 972,
+      "move_distance": 10213.754689,
+      "move_time": 10213.754689,
+      "depth": 500,
+      "num_operations": 2135
+    },
+    "spacing_warnings": 0,
+    "equivalence": "EquivalenceCriterion.equivalent_up_to_global_phase"
+  },
+  "sample_circuit_08": {
+    "metrics": {
+      "num_moves": 144,
+      "move_steps": 144,
+      "move_distance": 1494.69685,
+      "move_time": 1494.69685,
+      "depth": 99,
+      "num_operations": 360
+    },
+    "spacing_warnings": 0,
+    "equivalence": "EquivalenceCriterion.equivalent_up_to_global_phase"
+  },
+  "sample_circuit_09": {
+    "metrics": {
+      "num_moves": 870,
+      "move_steps": 870,
+      "move_distance": 8925.004707,
+      "move_time": 8925.004707,
+      "depth": 62,
+      "num_operations": 403
+    },
+    "spacing_warnings": 0,
+    "equivalence": "EquivalenceCriterion.equivalent_up_to_global_phase"
+  },
+  "sample_circuit_10": {
+    "metrics": {
+      "num_moves": 232,
+      "move_steps": 232,
+      "move_distance": 2331.728295,
+      "move_time": 2331.728295,
+      "depth": 99,
+      "num_operations": 576
+    },
+    "spacing_warnings": 0,
+    "equivalence": "EquivalenceCriterion.equivalent"
+  },
+  "sample_circuit_11": {
+    "metrics": {
+      "num_moves": 1740,
+      "move_steps": 1740,
+      "move_distance": 17354.711956,
+      "move_time": 17354.711956,
+      "depth": 82,
+      "num_operations": 693
+    },
+    "spacing_warnings": 0,
+    "equivalence": "EquivalenceCriterion.equivalent_up_to_global_phase"
+  },
+  "sample_circuit_12": {
+    "metrics": {
+      "num_moves": 12864,
+      "move_steps": 12864,
+      "move_distance": 115892.872825,
+      "move_time": 115892.872825,
+      "depth": 3333,
+      "num_operations": 31980
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "sample_circuit_13": {
+    "metrics": {
+      "num_moves": 40376,
+      "move_steps": 40376,
+      "move_distance": 306806.635326,
+      "move_time": 306806.635326,
+      "depth": 6887,
+      "num_operations": 99634
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "metric_circuit_01": {
+    "metrics": {
+      "num_moves": 24,
+      "move_steps": 24,
+      "move_distance": 243.95645,
+      "move_time": 243.95645,
+      "depth": 19,
+      "num_operations": 173
+    },
+    "spacing_warnings": 0,
+    "equivalence": "EquivalenceCriterion.equivalent_up_to_global_phase"
+  },
+  "metric_circuit_02": {
+    "metrics": {
+      "num_moves": 72,
+      "move_steps": 72,
+      "move_distance": 731.869351,
+      "move_time": 731.869351,
+      "depth": 43,
+      "num_operations": 423
+    },
+    "spacing_warnings": 0,
+    "equivalence": "EquivalenceCriterion.equivalent_up_to_global_phase"
+  },
+  "metric_circuit_03": {
+    "metrics": {
+      "num_moves": 40,
+      "move_steps": 40,
+      "move_distance": 389.447087,
+      "move_time": 389.447087,
+      "depth": 19,
+      "num_operations": 293
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "metric_circuit_04": {
+    "metrics": {
+      "num_moves": 120,
+      "move_steps": 120,
+      "move_distance": 1168.341262,
+      "move_time": 1168.341262,
+      "depth": 43,
+      "num_operations": 719
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "metric_circuit_05": {
+    "metrics": {
+      "num_moves": 106,
+      "move_steps": 106,
+      "move_distance": 886.461346,
+      "move_time": 886.461346,
+      "depth": 19,
+      "num_operations": 743
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "metric_circuit_06": {
+    "metrics": {
+      "num_moves": 318,
+      "move_steps": 318,
+      "move_distance": 2659.384037,
+      "move_time": 2659.384037,
+      "depth": 43,
+      "num_operations": 1829
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "metric_circuit_07": {
+    "metrics": {
+      "num_moves": 192,
+      "move_steps": 192,
+      "move_distance": 1956.520221,
+      "move_time": 1956.520221,
+      "depth": 191,
+      "num_operations": 541
+    },
+    "spacing_warnings": 0,
+    "equivalence": "EquivalenceCriterion.equivalent"
+  },
+  "metric_circuit_08": {
+    "metrics": {
+      "num_moves": 576,
+      "move_steps": 576,
+      "move_distance": 5869.560663,
+      "move_time": 5869.560663,
+      "depth": 501,
+      "num_operations": 1527
+    },
+    "spacing_warnings": 0,
+    "equivalence": "EquivalenceCriterion.equivalent"
+  },
+  "metric_circuit_09": {
+    "metrics": {
+      "num_moves": 192,
+      "move_steps": 192,
+      "move_distance": 1956.520221,
+      "move_time": 1956.520221,
+      "depth": 175,
+      "num_operations": 541
+    },
+    "spacing_warnings": 0,
+    "equivalence": "EquivalenceCriterion.equivalent"
+  },
+  "metric_circuit_10": {
+    "metrics": {
+      "num_moves": 576,
+      "move_steps": 576,
+      "move_distance": 5869.560663,
+      "move_time": 5869.560663,
+      "depth": 528,
+      "num_operations": 1527
+    },
+    "spacing_warnings": 0,
+    "equivalence": "EquivalenceCriterion.equivalent"
+  },
+  "metric_circuit_11": {
+    "metrics": {
+      "num_moves": 192,
+      "move_steps": 192,
+      "move_distance": 1956.520221,
+      "move_time": 1956.520221,
+      "depth": 175,
+      "num_operations": 541
+    },
+    "spacing_warnings": 0,
+    "equivalence": "EquivalenceCriterion.equivalent"
+  },
+  "metric_circuit_12": {
+    "metrics": {
+      "num_moves": 576,
+      "move_steps": 576,
+      "move_distance": 5869.560663,
+      "move_time": 5869.560663,
+      "depth": 528,
+      "num_operations": 1527
+    },
+    "spacing_warnings": 0,
+    "equivalence": "EquivalenceCriterion.equivalent"
+  },
+  "metric_circuit_13": {
+    "metrics": {
+      "num_moves": 328,
+      "move_steps": 328,
+      "move_distance": 3273.549206,
+      "move_time": 3273.549206,
+      "depth": 327,
+      "num_operations": 930
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "metric_circuit_14": {
+    "metrics": {
+      "num_moves": 984,
+      "move_steps": 984,
+      "move_distance": 9820.647618,
+      "move_time": 9820.647618,
+      "depth": 841,
+      "num_operations": 2630
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "metric_circuit_15": {
+    "metrics": {
+      "num_moves": 328,
+      "move_steps": 328,
+      "move_distance": 3273.549206,
+      "move_time": 3273.549206,
+      "depth": 247,
+      "num_operations": 930
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "metric_circuit_16": {
+    "metrics": {
+      "num_moves": 984,
+      "move_steps": 984,
+      "move_distance": 9820.647618,
+      "move_time": 9820.647618,
+      "depth": 795,
+      "num_operations": 2630
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "metric_circuit_17": {
+    "metrics": {
+      "num_moves": 328,
+      "move_steps": 328,
+      "move_distance": 3273.549206,
+      "move_time": 3273.549206,
+      "depth": 247,
+      "num_operations": 930
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "metric_circuit_18": {
+    "metrics": {
+      "num_moves": 984,
+      "move_steps": 984,
+      "move_distance": 9820.647618,
+      "move_time": 9820.647618,
+      "depth": 795,
+      "num_operations": 2630
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "metric_circuit_19": {
+    "metrics": {
+      "num_moves": 996,
+      "move_steps": 996,
+      "move_distance": 8302.303239,
+      "move_time": 8302.303239,
+      "depth": 837,
+      "num_operations": 2699
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "metric_circuit_20": {
+    "metrics": {
+      "num_moves": 2988,
+      "move_steps": 2988,
+      "move_distance": 24906.909717,
+      "move_time": 24906.909717,
+      "depth": 2139,
+      "num_operations": 7697
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "metric_circuit_21": {
+    "metrics": {
+      "num_moves": 996,
+      "move_steps": 996,
+      "move_distance": 8302.303239,
+      "move_time": 8302.303239,
+      "depth": 555,
+      "num_operations": 2699
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "metric_circuit_22": {
+    "metrics": {
+      "num_moves": 2988,
+      "move_steps": 2988,
+      "move_distance": 24906.909717,
+      "move_time": 24906.909717,
+      "depth": 1933,
+      "num_operations": 7697
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "metric_circuit_23": {
+    "metrics": {
+      "num_moves": 996,
+      "move_steps": 996,
+      "move_distance": 8302.303239,
+      "move_time": 8302.303239,
+      "depth": 555,
+      "num_operations": 2699
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "metric_circuit_24": {
+    "metrics": {
+      "num_moves": 2988,
+      "move_steps": 2988,
+      "move_distance": 24906.909717,
+      "move_time": 24906.909717,
+      "depth": 1933,
+      "num_operations": 7697
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "metric_circuit_25": {
+    "metrics": {
+      "num_moves": 192,
+      "move_steps": 192,
+      "move_distance": 1956.520221,
+      "move_time": 1956.520221,
+      "depth": 206,
+      "num_operations": 495
+    },
+    "spacing_warnings": 0,
+    "equivalence": "EquivalenceCriterion.equivalent"
+  },
+  "metric_circuit_26": {
+    "metrics": {
+      "num_moves": 576,
+      "move_steps": 576,
+      "move_distance": 5869.560663,
+      "move_time": 5869.560663,
+      "depth": 550,
+      "num_operations": 1389
+    },
+    "spacing_warnings": 0,
+    "equivalence": "EquivalenceCriterion.equivalent"
+  },
+  "metric_circuit_27": {
+    "metrics": {
+      "num_moves": 192,
+      "move_steps": 192,
+      "move_distance": 1956.520221,
+      "move_time": 1956.520221,
+      "depth": 212,
+      "num_operations": 567
+    },
+    "spacing_warnings": 0,
+    "equivalence": "EquivalenceCriterion.equivalent_up_to_global_phase"
+  },
+  "metric_circuit_28": {
+    "metrics": {
+      "num_moves": 576,
+      "move_steps": 576,
+      "move_distance": 5869.560663,
+      "move_time": 5869.560663,
+      "depth": 568,
+      "num_operations": 1605
+    },
+    "spacing_warnings": 0,
+    "equivalence": "EquivalenceCriterion.equivalent_up_to_global_phase"
+  },
+  "metric_circuit_29": {
+    "metrics": {
+      "num_moves": 328,
+      "move_steps": 328,
+      "move_distance": 3273.549206,
+      "move_time": 3273.549206,
+      "depth": 326,
+      "num_operations": 850
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "metric_circuit_30": {
+    "metrics": {
+      "num_moves": 984,
+      "move_steps": 984,
+      "move_distance": 9820.647618,
+      "move_time": 9820.647618,
+      "depth": 910,
+      "num_operations": 2390
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "metric_circuit_31": {
+    "metrics": {
+      "num_moves": 328,
+      "move_steps": 328,
+      "move_distance": 3273.549206,
+      "move_time": 3273.549206,
+      "depth": 332,
+      "num_operations": 970
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "metric_circuit_32": {
+    "metrics": {
+      "num_moves": 984,
+      "move_steps": 984,
+      "move_distance": 9820.647618,
+      "move_time": 9820.647618,
+      "depth": 928,
+      "num_operations": 2750
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "metric_circuit_33": {
+    "metrics": {
+      "num_moves": 996,
+      "move_steps": 996,
+      "move_distance": 8302.303239,
+      "move_time": 8302.303239,
+      "depth": 791,
+      "num_operations": 2455
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "metric_circuit_34": {
+    "metrics": {
+      "num_moves": 2988,
+      "move_steps": 2988,
+      "move_distance": 24906.909717,
+      "move_time": 24906.909717,
+      "depth": 2275,
+      "num_operations": 6965
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "metric_circuit_35": {
+    "metrics": {
+      "num_moves": 996,
+      "move_steps": 996,
+      "move_distance": 8302.303239,
+      "move_time": 8302.303239,
+      "depth": 797,
+      "num_operations": 2755
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  },
+  "metric_circuit_36": {
+    "metrics": {
+      "num_moves": 2988,
+      "move_steps": 2988,
+      "move_distance": 24906.909717,
+      "move_time": 24906.909717,
+      "depth": 2293,
+      "num_operations": 7865
+    },
+    "spacing_warnings": 0,
+    "equivalence": "not checked"
+  }
+}
