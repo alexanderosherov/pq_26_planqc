@@ -31,6 +31,10 @@ KINDS = {
     "zone": ("gate outside its zone", "gates outside their zone"),
     "pair": ("two-qubit gate off an interaction pair", "two-qubit gates off an interaction pair"),
     "loading": ("invalid initial loading", "invalid initial loadings"),
+    "idle": (
+        "two-qubit gate layer with idle atoms in its zone",
+        "two-qubit gate layers with idle atoms in their zone",
+    ),
 }
 """`ArchitectureError.kind` -> (singular, plural) description."""
 

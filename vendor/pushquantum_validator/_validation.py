@@ -8,7 +8,7 @@ import logging
 import math
 import tempfile
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from numbers import Integral
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -305,6 +305,16 @@ class ValidationArchitecture:
                 )
         return found
 
+    def _check_single_zone(self, sites: dict[int, Site], action: str) -> None:
+        """Raises if the atoms at `sites` (qubit -> site) are in more than one zone."""
+        by_zone: dict[str, list[int]] = {}
+        for qubit, site in sorted(sites.items()):
+            by_zone.setdefault(self.zone_at[site].name, []).append(qubit)
+        if len(by_zone) > 1:
+            where = "; ".join(f"{name!r}: qubits {qubits}" for name, qubits in by_zone.items())
+            msg = f"Move {action} atoms in more than one zone ({where}); each end of a move must lie in one zone."
+            raise ArchitectureError(msg)
+
     def apply_move(self, move: ValidatedMove, qubits: Sequence[int]) -> tuple[dict[Site, Site], tuple[str, ...]]:
         """Checks `move` on `qubits` against the current state and applies it.
 
@@ -331,6 +341,8 @@ class ValidationArchitecture:
             where = {q: self.positions.get(q) for q in sorted(missing)}
             msg = f"Qubits {where} are not at any intersection of rows {move.rows} x cols {move.cols}."
             raise ArchitectureError(msg)
+        self._check_single_zone(picked, "picks up")
+        self._check_single_zone({q: mapping[s] for q, s in picked.items()}, "drops off")
         for qubit, source in picked.items():
             occupant = self.occupant.get(mapping[source])
             if occupant is not None and occupant not in picked:
@@ -416,13 +428,21 @@ class ValidationArchitecture:
         group: list[AodLines] = []  # moves of the current parallel step
         group_qubits: set[int] = set()
         group_start: dict[int, Site] = {}  # positions when the step started
+        layer = _GateLayer()
         for index, instruction in enumerate(circuit.data):
             operation = instruction.operation
             qubits = tuple(index_of[q] for q in instruction.qubits)
+            if operation.name == MOVE_NAME:
+                self._close_layer(layer, violations, log)
+                layer = _GateLayer()
             try:
                 if operation.name != MOVE_NAME:
                     group = []
+                    if len(qubits) == 2:
+                        layer.add(index, qubits)
                     self.check_gate(operation.name, qubits)
+                    if len(qubits) == 2:
+                        layer.zones.add(self.zone_at[self.positions[qubits[0]]].name)
                     continue
                 move = ValidatedMove.from_instruction(operation)
                 before = {q: self.positions[q] for q in qubits}
@@ -453,4 +473,41 @@ class ValidationArchitecture:
                 violations.append(violation)
                 log.append(f"ERROR: {violation}")
                 group = []
+        self._close_layer(layer, violations, log)
         return trace, violations
+
+    def _close_layer(self, layer: _GateLayer, violations: list[ArchitectureError], log: list[str]) -> None:
+        """Adds an `idle` violation for every zone where the two-qubit gates of `layer` ran while other
+        atoms sat there: the entangling pulse reaches every atom in the zone, so each must be in a gate."""
+        for name in sorted(layer.zones):
+            zone = self.zones[name]
+            inside = (q for q, site in self.positions.items() if zone_contains(zone, site))
+            idle = sorted(q for q in inside if q not in layer.qubits)
+            if not idle:
+                continue
+            where = ", ".join(f"{q} at {self.positions[q]}" for q in idle)
+            span = f"{layer.first}" if layer.first == layer.last else f"{layer.first}-{layer.last}"
+            violation = ArchitectureError(
+                f"Instructions {span} (two-qubit gates in the {name!r} zone): qubits {where} sit in that zone "
+                "without taking part in a two-qubit gate; every atom in the zone must, or be moved out first.",
+                "idle",
+            )
+            violations.append(violation)
+            log.append(f"ERROR: {violation}")
+
+
+@dataclass
+class _GateLayer:
+    """The two-qubit gates between two moves: the atoms stand still, so they share entangling pulses."""
+
+    first: int = -1
+    last: int = -1
+    qubits: set[int] = field(default_factory=set)
+    zones: set[str] = field(default_factory=set)
+    """Zones where a legal two-qubit gate of the layer ran."""
+
+    def add(self, index: int, qubits: Sequence[int]) -> None:
+        if self.first < 0:
+            self.first = index
+        self.last = index
+        self.qubits.update(qubits)

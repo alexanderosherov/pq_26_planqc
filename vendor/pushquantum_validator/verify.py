@@ -207,17 +207,15 @@ def run_compiler(
     spec: dict[str, Any] | None = None,
     timeout: float = 300,
     memory_mb: int = 4096,
-    network: bool = True,
 ) -> tuple[QuantumCircuit, dict[int, Site]]:
     """Runs `compiler` (`module:function` or `file.py:function`, default: the template's) on `reference`
-    and `spec` (default: the validator's) in a separate process, without network if `network=False`
-    (Linux only, see `run_compiler_process`).
+    and `spec` (default: the validator's) in a separate process.
 
     Returns the compiled circuit, rebuilt by the validator from the child's JSON, and the initial
     loading. Raises `CompilerOutputError` if the compiler fails, times out or returns bad output.
     """
     spec = load_trusted_spec() if spec is None else copy.deepcopy(spec)
-    return run_compiler_process(reference, spec, compiler, timeout, memory_mb, network)
+    return run_compiler_process(reference, spec, compiler, timeout, memory_mb)
 
 
 @dataclass(frozen=True)
@@ -236,10 +234,9 @@ def verify_compilation(
     spec: dict[str, Any] | None = None,
     log_file: str | Path | None = None,
     timeout: float = 300,
-    network: bool = True,
 ) -> CompilationResult:
     """`run_compiler`, then both checks; raises the first `VerificationError`."""
-    compiled, loading = run_compiler(reference, compiler, spec, timeout, network=network)
+    compiled, loading = run_compiler(reference, compiler, spec, timeout)
     movement = verify_movement(compiled, loading, log_file, spec)
     gates = strip_moves(compiled)
     equivalence = verify_equivalence(compiled, reference, gates)
@@ -258,18 +255,28 @@ def sanity_benchmarks() -> list[Path]:
     return sorted(BENCHMARK_DIR.glob("*.qasm"))
 
 
-def metric_benchmarks() -> list[Path]:
-    """The bundled metric benchmarks (any depth of folders), sorted by their path in `METRIC_BENCHMARK_DIR`."""
-    return sorted(METRIC_BENCHMARK_DIR.rglob("*.qasm"))
+REDUCED_HEA_COUNT = 2
+"""How many `hea` circuits (the first, by sorted path: 12 qubits p1 and p3) the reduced metric set keeps."""
+
+
+def metric_benchmarks(reduced: bool = False) -> list[Path]:
+    """The bundled metric benchmarks (any depth of folders), sorted by their path in `METRIC_BENCHMARK_DIR`.
+    `reduced` keeps only the `ihva` circuits and the first `REDUCED_HEA_COUNT` `hea` circuits."""
+    paths = sorted(METRIC_BENCHMARK_DIR.rglob("*.qasm"))
+    if reduced:
+        hea = [p for p in paths if p.parent.name == "hea"][:REDUCED_HEA_COUNT]
+        paths = [p for p in paths if p.parent.name == "ihva" or p in hea]
+    return paths
 
 
 BENCHMARK_SETS = ("sanity", "metric")
 """The benchmark sets `--benchmarks` can pick, in the order `all` runs them."""
 
 
-def benchmarks(name: str) -> list[Path]:
-    """The benchmarks of the set `name` (one of `BENCHMARK_SETS`)."""
-    return {"sanity": sanity_benchmarks, "metric": metric_benchmarks}[name]()
+def benchmarks(name: str, reduced: bool = False) -> list[Path]:
+    """The benchmarks of the set `name` (one of `BENCHMARK_SETS`); `reduced` applies to the metric set
+    (see `metric_benchmarks`)."""
+    return sanity_benchmarks() if name == "sanity" else metric_benchmarks(reduced)
 
 
 def benchmark_label(path: Path) -> str | None:
@@ -321,17 +328,18 @@ SCORE_DISTANCE_WEIGHT = 0.8
 SCORE_DEPTH_WEIGHT = 0.2
 
 
-def score_compiler(compiler: str = DEFAULT_COMPILER, timeout: float = 300, network: bool = True) -> float:
+def score_compiler(compiler: str = DEFAULT_COMPILER, timeout: float = 300, reduced: bool = False) -> float:
     """% improvement of `compiler` over the naive compiler on the metric benchmarks: the improvements of
     the summed move distance and of the summed depth, each `(naive - new) / naive * 100` (positive is
-    better), weighted by `SCORE_DISTANCE_WEIGHT` and `SCORE_DEPTH_WEIGHT`. Raises the first
-    `VerificationError` if any compilation is invalid, with a note naming its benchmark."""
+    better), weighted by `SCORE_DISTANCE_WEIGHT` and `SCORE_DEPTH_WEIGHT`. `reduced` scores only the
+    reduced metric set (see `metric_benchmarks`). Raises the first `VerificationError` if any compilation
+    is invalid, with a note naming its benchmark."""
     results: dict[str, Metrics] = {}
-    for path in metric_benchmarks():
+    for path in metric_benchmarks(reduced):
         label = benchmark_label(path) or path.stem
         reference = QuantumCircuit.from_qasm_file(str(path))
         try:
-            results[label] = verify_compilation(reference, compiler, timeout=timeout, network=network).metrics
+            results[label] = verify_compilation(reference, compiler, timeout=timeout).metrics
         except VerificationError as error:
             error.add_note(f"benchmark: {label}")
             raise
@@ -406,6 +414,11 @@ def main(argv: list[str] | None = None) -> int:
         help="Only log each benchmark's name and its metric changes vs the naive compiler "
         "(or FAILED): the output for participants.",
     )
+    parser.add_argument(
+        "--reduced-metrics",
+        action="store_true",
+        help="Only run and score the ihva metric benchmarks and the first two hea ones (12 qubits, p1 and p3).",
+    )
     args = parser.parse_args(argv)
 
     package_logger = logging.getLogger("pushquantum_validator")
@@ -425,7 +438,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.reference:
             return 0 if _check(Path(args.reference), args.candidate, args.compiler, args.timeout)[0] else 1
         sets = list(BENCHMARK_SETS) if args.benchmarks == "all" else [args.benchmarks]
-        results = [_run_benchmarks(name, args.compiler, args.timeout) for name in sets]
+        results = [_run_benchmarks(name, args.compiler, args.timeout, args.reduced_metrics) for name in sets]
         return 1 if any(results) else 0
     finally:
         for handler in handlers:
@@ -438,11 +451,12 @@ _SUMMARY = {"summary": True}
 """`extra` of the log records kept by `--summary`."""
 
 
-def _run_benchmarks(name: str, compiler: str, timeout: float) -> int:
-    """Checks every benchmark of the set `name` (see `BENCHMARK_SETS`); 1 if any failed, else 0."""
+def _run_benchmarks(name: str, compiler: str, timeout: float, reduced: bool = False) -> int:
+    """Checks every benchmark of the set `name` (see `BENCHMARK_SETS`, `reduced` as in `benchmarks`);
+    1 if any failed, else 0."""
     failed = []
     metrics: dict[str, Metrics] = {}
-    paths = benchmarks(name)
+    paths = benchmarks(name, reduced)
     for path in paths:
         label = benchmark_label(path) or path.stem
         logger.info("== %s", label, extra=_SUMMARY)

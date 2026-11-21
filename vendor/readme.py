@@ -104,6 +104,12 @@ async def _(aqora, datetime, leaderboard_refresh, mo, submission_outcome):
     return
 
 
+@app.cell
+def _(mo):
+    mo.ui.button(label="open leaderboard")
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -293,7 +299,7 @@ def _(
             await aqora.Store().put_async(key, raw, content_type="text/x-python")
             try:
                 # No network for the compiler, which could otherwise reach aqora as planqc through localhost.
-                new = await asyncio.to_thread(score_compiler, f"{path}:compile_circuit", network=False)
+                new = await asyncio.to_thread(score_compiler, f"{path}:compile_circuit", reduced=True)
             except VerificationError as error:
                 # Like the validator's `--summary`: the failed benchmark and the kinds of errors, not the
                 # messages, which could reveal the benchmark circuits.
