@@ -13,6 +13,7 @@ Then open the printed .html file in a browser.
 """
 
 import argparse
+import inspect
 import json
 import logging
 from pathlib import Path
@@ -150,21 +151,21 @@ TEMPLATE = r"""<!doctype html>
 :root {
   --bg: #f6f7f9; --panel: #ffffff; --ink: #1d2330; --muted: #667085; --line: #d9dde5;
   --storage: #e8f0fb; --storage-edge: #9db7dd; --ent: #fdeee4; --ent-edge: #e6946a;
-  --trap: #b8bfcc; --atom: #3d6fb6; --atom-ink: #ffffff; --moving: #0f9d8a;
+  --trap: #b8bfcc; --atom: #3d6fb6; --atom-ink: #ffffff; --moving: #0f9d8a; --beam-row: rgba(15,157,138,.16); --beam-col: rgba(15,157,138,.16);
   --rz: #7b61ff; --rx: #2aa3d8; --cz: #e2572b; --accent: #3d6fb6; --bar: #e2572b;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #12151b; --panel: #1b2029; --ink: #e6e9ef; --muted: #98a2b3; --line: #2c3340;
     --storage: #18263a; --storage-edge: #3f5f8c; --ent: #33221a; --ent-edge: #b8663e;
-    --trap: #4a5263; --atom: #6c9be0; --atom-ink: #0e1117; --moving: #35c9b2;
+    --trap: #4a5263; --atom: #6c9be0; --atom-ink: #0e1117; --moving: #35c9b2; --beam-row: rgba(53,201,178,.17); --beam-col: rgba(53,201,178,.17);
     --rz: #a593ff; --rx: #5cc4f0; --cz: #ff7a4d; --accent: #6c9be0; --bar: #ff7a4d;
   }
 }
 :root[data-theme="dark"] {
   --bg: #12151b; --panel: #1b2029; --ink: #e6e9ef; --muted: #98a2b3; --line: #2c3340;
   --storage: #18263a; --storage-edge: #3f5f8c; --ent: #33221a; --ent-edge: #b8663e;
-  --trap: #4a5263; --atom: #6c9be0; --atom-ink: #0e1117; --moving: #35c9b2;
+  --trap: #4a5263; --atom: #6c9be0; --atom-ink: #0e1117; --moving: #35c9b2; --beam-row: rgba(53,201,178,.17); --beam-col: rgba(53,201,178,.17);
   --rz: #a593ff; --rx: #5cc4f0; --cz: #ff7a4d; --accent: #6c9be0; --bar: #ff7a4d;
 }
 * { box-sizing: border-box; }
@@ -225,6 +226,7 @@ h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: v
       <select id="filter" title="Play through">
         <option value="all">all steps</option><option value="move">moves only</option>
       </select>
+      <label class="hint" title="Show the AOD row/column beams of a move (L)"><input id="beams" type="checkbox" checked> AOD lines</label>
       <input id="scrub" type="range" min="0" value="0">
       <span class="step-label" id="steplabel"></span>
     </div>
@@ -234,7 +236,7 @@ h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: v
       <span><span class="dot" style="background:var(--rz)"></span>rz</span>
       <span><span class="dot" style="background:var(--rx)"></span>rx</span>
       <span><span class="dot" style="background:var(--cz)"></span>cz pair</span>
-      <span class="hint">Space play · ← → step · dashed box = AOD pick-up</span>
+      <span class="hint">Space play · ← → step · L AOD lines · dashed box = AOD pick-up</span>
     </div>
   </section>
   <aside class="side">
@@ -263,6 +265,7 @@ h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: v
 <script>
 const D = JSON.parse(document.getElementById("data").textContent);
 const S = D.steps;
+const moveNo = new Map(); S.forEach((s, i) => { if (s.t === "move") moveNo.set(i, moveNo.size + 1); });
 const PX = 46, R = 0.17, PAD = 0.7;
 const xs = D.sites.map(s => s[0]), ys = D.sites.map(s => s[1]);
 const minX = Math.min(...xs) - PAD, maxX = Math.max(...xs) + PAD;
@@ -278,7 +281,8 @@ stage.setAttribute("viewBox", `0 0 ${(maxX - minX) * PX} ${(maxY - minY) * PX}`)
 const gZones = el("g", {}, stage), gTraps = el("g", {}, stage), gAod = el("g", {}, stage),
       gLinks = el("g", {}, stage), gAtoms = el("g", {}, stage);
 for (const z of D.zones) {
-  const x0 = Math.min(z.lo[0], z.hi[0]) - 0.45, x1 = Math.max(z.lo[0], z.hi[0]) + 0.45;
+  // every zone box spans the full array width (paired entangling sites end at x = 8.3, storage at 9)
+  const x0 = Math.min(...xs) - 0.45, x1 = Math.max(...xs) + 0.45;
   const y0 = Math.min(z.lo[1], z.hi[1]) - 0.45, y1 = Math.max(z.lo[1], z.hi[1]) + 0.45;
   const ent = z.kind === "ent";
   const r = el("rect", { x: sx(x0), y: sy(y1), width: (x1 - x0) * PX, height: (y1 - y0) * PX, rx: 10,
@@ -289,8 +293,7 @@ for (const z of D.zones) {
     `${z.name} (${z.ops.join(", ")})`;
 }
 for (const [x, y] of D.sites) el("circle", { cx: sx(x), cy: sy(y), r: 3, fill: "var(--trap)" }, gTraps);
-const aodRect = el("rect", { fill: "none", stroke: "var(--moving)", "stroke-width": 1.5,
-  "stroke-dasharray": "5 4", rx: 6, visibility: "hidden" }, gAod);
+
 const atoms = [];
 for (let q = 0; q < D.n; q++) {
   const g = el("g", {}, gAtoms);
@@ -303,13 +306,17 @@ for (let q = 0; q < D.n; q++) {
   atoms.push({ g, c, ring });
 }
 
-// precomputed positions before each step
-const states = [D.init.map(p => p.slice())];
-for (const s of S) {
-  const next = states[states.length - 1].map(p => p.slice());
-  if (s.t === "move") s.q.forEach((q, i) => { next[q] = s.to[i].slice(); });
-  states.push(next);
+// precomputed positions before each step (per view)
+function computeStates(list) {
+  const out = [D.init.map(p => p.slice())];
+  for (const s of list) {
+    const next = out[out.length - 1].map(p => p.slice());
+    if (s.t === "move") s.q.forEach((q, i) => { next[q] = s.to[i].slice(); });
+    out.push(next);
+  }
+  return out;
 }
+const states = computeStates(S);
 
 // header
 document.getElementById("title").textContent = D.name;
@@ -360,17 +367,24 @@ scrub.max = S.length;
 function place(pos) { atoms.forEach((a, q) => a.g.setAttribute("transform", `translate(${sx(pos[q][0])},${sy(pos[q][1])})`)); }
 function clearMarks() {
   atoms.forEach(a => { a.ring.setAttribute("stroke", "transparent"); a.c.setAttribute("fill", "var(--atom)"); });
-  gLinks.replaceChildren(); aodRect.setAttribute("visibility", "hidden");
+  gLinks.replaceChildren(); gAod.replaceChildren();
   document.getElementById("entzone")?.setAttribute("stroke-width", 1.5);
   roundBars.forEach(b => b.setAttribute("opacity", 0.55));
 }
-function aodBox(pos, qs) {
-  const px = qs.map(q => pos[q][0]), py = qs.map(q => pos[q][1]);
+function aodBox(pos, s) {  // dashed pick-up box + (optional) AOD row/column beams through the carried atoms
+  const px = s.q.map(q => pos[q][0]), py = s.q.map(q => pos[q][1]);
   const x0 = Math.min(...px) - 0.35, x1 = Math.max(...px) + 0.35, y0 = Math.min(...py) - 0.35, y1 = Math.max(...py) + 0.35;
-  aodRect.setAttribute("x", sx(x0)); aodRect.setAttribute("y", sy(y1));
-  aodRect.setAttribute("width", (x1 - x0) * PX); aodRect.setAttribute("height", (y1 - y0) * PX);
-  aodRect.setAttribute("visibility", "visible");
+  gAod.replaceChildren();
+  if (document.getElementById("beams").checked) {
+    const W = (maxX - minX) * PX, H = (maxY - minY) * PX;
+    // one band per axis, as wide as the box: spans every picked row / column
+    el("rect", { x: 0, y: sy(y1), width: W, height: (y1 - y0) * PX, fill: "var(--beam-row)" }, gAod);
+    el("rect", { x: sx(x0), y: 0, width: (x1 - x0) * PX, height: H, fill: "var(--beam-col)" }, gAod);
+  }
+  el("rect", { x: sx(x0), y: sy(y1), width: (x1 - x0) * PX, height: (y1 - y0) * PX, fill: "none",
+    stroke: "var(--moving)", "stroke-width": 1.5, "stroke-dasharray": "5 4", rx: 6 }, gAod);
 }
+function redraw() { if (!playing) show(cur); }
 function describe(i) {
   const k = document.getElementById("kind"), d = document.getElementById("detail");
   const rnd = document.getElementById("round"), th = document.getElementById("thisd"), so = document.getElementById("sofar");
@@ -379,9 +393,9 @@ function describe(i) {
   const s = S[i];
   rnd.textContent = s.round || "–"; so.textContent = (s.t === "move" ? s.total : s.total).toFixed(2);
   if (s.t === "move") {
-    k.textContent = `Move #${moveIdx.indexOf(i) + 1} · ${s.q.length} atom${s.q.length > 1 ? "s" : ""}`;
+    k.textContent = `Move #${moveNo.get(i)} · ${s.q.length} atom${s.q.length > 1 ? "s" : ""}`;
     d.textContent = `rows ${s.src[0].join(",")} × cols ${s.src[1].join(",")} → rows ${s.dst[0].join(",")} × cols ${s.dst[1].join(",")} · qubits ${s.q.join(", ")}`;
-    th.textContent = `${s.d.toFixed(3)} · parallel step ${s.par}${s.warn ? " · spacing warning" : ""}`;
+    th.textContent = `${s.d.toFixed(3)}${s.warn ? " · spacing warning" : ""}`;
   } else if (s.t === "cz") {
     k.textContent = `CZ pulse · ${s.pairs.length} pair${s.pairs.length > 1 ? "s" : ""}`;
     d.textContent = s.pairs.map(p => `(${p[0]},${p[1]})`).join(" ");
@@ -397,7 +411,7 @@ function mark(i, pos) {
   if (i >= S.length) return;
   const s = S[i];
   if (s.round) roundBars.get(s.round)?.setAttribute("opacity", 1);
-  if (s.t === "move") { s.q.forEach(q => atoms[q].c.setAttribute("fill", "var(--moving)")); aodBox(pos, s.q); }
+  if (s.t === "move") { s.q.forEach(q => atoms[q].c.setAttribute("fill", "var(--moving)")); aodBox(pos, s); }
   else if (s.t === "cz") {
     document.getElementById("entzone")?.setAttribute("stroke-width", 4);
     for (const [a, b] of s.pairs) {
@@ -429,7 +443,7 @@ function advance() {
     const f = Math.min(1, (now - t0) / dur), e = f < 0.5 ? 2 * f * f : 1 - Math.pow(-2 * f + 2, 2) / 2;
     if (s.t === "move") {
       const pos = from.map((p, q) => [p[0] + (to[q][0] - p[0]) * e, p[1] + (to[q][1] - p[1]) * e]);
-      place(pos); aodBox(pos, s.q);
+      place(pos); aodBox(pos, s);
     }
     if (f < 1) anim = requestAnimationFrame(tick);
     else { show(cur + 1); anim = requestAnimationFrame(advance); }
@@ -451,7 +465,9 @@ document.addEventListener("keydown", e => {
   else if (e.key === "ArrowLeft") go(cur - 1);
   else if (e.key === "Home") go(0);
   else if (e.key === "End") go(S.length);
+  else if (e.key === "l" || e.key === "L") { const b = document.getElementById("beams"); b.checked = !b.checked; redraw(); }
 });
+document.getElementById("beams").onchange = redraw;
 const hashStep = parseInt((location.hash.match(/step=(\d+)/) || [])[1], 10);
 show(Number.isFinite(hashStep) ? hashStep : 0);
 </script>
@@ -466,13 +482,18 @@ def main() -> None:
     parser.add_argument("--budget", type=float, default=5.0, help="compile_circuit time budget in seconds (default 5)")
     parser.add_argument("--out", type=Path, default=Path(__file__).with_name("viewer_out"))
     parser.add_argument("--rzz", action="store_true", help="compile with use_rzz=True (native rzz gates)")
+    parser.add_argument("--cell", type=Path, default=None, help="compile_circuit file to use (default compile_circuit_cell.py)")
     args = parser.parse_args()
     logging.getLogger("pushquantum_validator").setLevel(logging.ERROR)
 
     name, circuit = pick_circuit(args.circuit)
     spec = load_trusted_spec()
+    compile_fn = load_cell(args.cell)
+    params = inspect.signature(compile_fn).parameters
     options = {"use_rzz": True} if args.rzz else {}
-    output = load_cell()(circuit, spec, time_budget=args.budget, **options)
+    if "time_budget" in params:
+        options["time_budget"] = args.budget
+    output = compile_fn(circuit, spec, **options)
     compiled, loading = parse_output(load_serializer()(output))
     try:
         movement = pv.verify_movement(compiled, loading)
@@ -482,7 +503,7 @@ def main() -> None:
     trace = build_trace(name, compiled, loading, movement, metrics, spec)
 
     args.out.mkdir(parents=True, exist_ok=True)
-    path = args.out / f"{name}.html"
+    path = args.out / (f"{name}__{args.cell.stem}.html" if args.cell else f"{name}.html")
     data = json.dumps(trace, separators=(",", ":")).replace("</", "<\\/")
     path.write_text(TEMPLATE.replace("__DATA__", data), encoding="utf-8")
     print(f"{name}: valid movement | {metrics}")
